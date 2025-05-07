@@ -29,19 +29,18 @@ Pragmatic trade‑offs: token‑parity fairness, graceful degradation, and budge
 
 ## 🗺️ Architecture Diagram
 
-```mermaid
 graph TB
-    subgraph Cost Guard
+    subgraph CostGuard
         A[gpt_call()] --> CSV[usage_log.csv]
     end
-    Q[Prompt Generator (gpt‑4o‑mini)] -->|question| B[Provider Fan‑out]
+    Q[Prompt‑Gen (gpt‑4o‑mini)] -->|question| B[ProviderFanout]
     B --> OpenAI[gpt‑4o‑mini]
     B --> Claude[claude‑3‑sonnet]
     B --> Gemini[gemini‑flash]
     B --> DeepSeek
     B --> Groq[Llama‑3]
-    B --> Ollama[local Llama‑3]
-    OpenAI -->|answers| C[Answer Collector]
+    B --> Ollama[local Llama‑3]
+    OpenAI --> C[AnswerCollector]
     Claude --> C
     Gemini --> C
     DeepSeek --> C
@@ -51,7 +50,6 @@ graph TB
     JudgePrompt --> Judge[o3‑mini]
     Judge -->|JSON ranks| Leaderboard
     A -. logs .-> Leaderboard
-```
 
 ---
 
