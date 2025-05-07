@@ -29,28 +29,38 @@ Pragmatic trade‑offs: token‑parity fairness, graceful degradation, and budge
 
 ## 🗺️ Architecture Diagram
 
-graph TB
-    subgraph CostGuard
+%% LLM‑Competitor‑Analysis — high‑level flow
+flowchart LR
+    subgraph CostGuard[Cost Guard 🔒]
+        style CostGuard stroke-dasharray: 4 4
         A[gpt_call()] --> CSV[usage_log.csv]
     end
-    Q[Prompt‑Gen (gpt‑4o‑mini)] -->|question| B[ProviderFanout]
-    B --> OpenAI[gpt‑4o‑mini]
-    B --> Claude[claude‑3‑sonnet]
-    B --> Gemini[gemini‑flash]
-    B --> DeepSeek
-    B --> Groq[Llama‑3]
-    B --> Ollama[local Llama‑3]
-    OpenAI --> C[AnswerCollector]
-    Claude --> C
-    Gemini --> C
-    DeepSeek --> C
-    Groq --> C
-    Ollama --> C
-    C --> JudgePrompt
-    JudgePrompt --> Judge[o3‑mini]
-    Judge -->|JSON ranks| Leaderboard
-    A -. logs .-> Leaderboard
 
+    Q["Prompt Gen<br/>(gpt‑4o‑mini)"] -->|question| Fan[Provider Fan‑out]
+
+    %% Competitor calls
+    Fan --> OA[gpt‑4o‑mini]
+    Fan --> CL[claude‑3]
+    Fan --> GM[gemini‑flash]
+    Fan --> DS[deepseek]
+    Fan --> GR[llama‑3 (Groq)]
+    Fan --> OL[llama‑3 (Ollama)]
+
+    %% Collect answers
+    OA --> Coll[Answer Collector]
+    CL --> Coll
+    GM --> Coll
+    DS --> Coll
+    GR --> Coll
+    OL --> Coll
+
+    %% Judge path
+    Coll --> JP[Judge Prompt]
+    JP --> J[o3‑mini judge]
+    J -->|JSON rank| LB[Leaderboard]
+
+    %% Log arrow
+    A -. logs .-> LB
 ---
 
 ## 🚀 Quick Start
